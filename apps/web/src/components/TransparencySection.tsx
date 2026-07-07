@@ -1,3 +1,5 @@
+import FadeInView from "./FadeInView";
+
 const cards = [
   {
     title: "Deployed contract",
@@ -35,29 +37,31 @@ export default function TransparencySection() {
   return (
     <section className="py-24 md:py-32 border-t border-border">
       <div className="max-w-6xl mx-auto px-6">
-        <div className="mb-16">
-          <span className="text-xs font-mono text-accent tracking-widest">
-            TRANSPARENCY
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-3">Verify it yourself</h2>
-        </div>
+        <FadeInView>
+          <div className="mb-16">
+            <span className="text-xs font-mono text-accent tracking-widest">
+              TRANSPARENCY
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold mt-3">Verify it yourself</h2>
+          </div>
+        </FadeInView>
 
         <div className="grid md:grid-cols-3 gap-4">
           {cards.map((card, i) => (
-            <a
-              key={card.title}
-              href={card.href}
-              target={card.href.startsWith("http") ? "_blank" : undefined}
-              rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="block border border-border hover:border-accent/30 bg-surface rounded-xl p-6 transition-all hover:bg-surface-light animate-fade-in-up group"
-              style={{ animationDelay: `${i * 0.1}s` }}
-            >
-              <div className="mb-4">{card.icon}</div>
-              <h3 className="font-semibold mb-1 group-hover:text-accent-light transition-colors">
-                {card.title}
-              </h3>
-              <p className="text-sm text-muted">{card.description}</p>
-            </a>
+            <FadeInView key={card.title} delay={i * 0.1}>
+              <a
+                href={card.href}
+                target={card.href.startsWith("http") ? "_blank" : undefined}
+                rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="block border border-border hover:border-accent/30 bg-surface rounded-xl p-6 transition-all hover:bg-surface-light group"
+              >
+                <div className="mb-4">{card.icon}</div>
+                <h3 className="font-semibold mb-1 group-hover:text-accent-light transition-colors">
+                  {card.title}
+                </h3>
+                <p className="text-sm text-muted">{card.description}</p>
+              </a>
+            </FadeInView>
           ))}
         </div>
       </div>

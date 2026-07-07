@@ -1,3 +1,5 @@
+import HeroParticles from "./HeroParticles";
+
 export default function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
@@ -5,6 +7,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-surface" />
       <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-accent-dim/10 blur-[120px] animate-ambient" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px] animate-ambient" style={{ animationDelay: "2s" }} />
+      <HeroParticles />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center pt-24 pb-32">
         {/* Eyebrow */}
