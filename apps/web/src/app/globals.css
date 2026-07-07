@@ -25,26 +25,33 @@
   50% { opacity: 0.6; }
 }
 
-@keyframes float-particle {
-  0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  50% { transform: translateY(-120px) translateX(30px) rotate(180deg); }
-  100% { transform: translateY(-240px) translateX(-20px) rotate(360deg); opacity: 0; }
+@keyframes coin-fall {
+  0% { transform: translateY(-10vh) rotate(var(--coin-start)); opacity: 0; }
+  8% { opacity: 0.9; }
+  85% { opacity: 0.7; }
+  100% { transform: translateY(105vh) rotate(var(--coin-end)); opacity: 0; }
 }
 
-@keyframes float-coin {
-  0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.6; }
-  100% { transform: translateY(-20vh) rotate(720deg); opacity: 0; }
+@keyframes ripple-expand {
+  0% { transform: scale(0.3); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
 }
 
-@keyframes drift-arc {
+@keyframes glow-orb {
   0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(40px, -40px) scale(1.1); }
-  50% { transform: translate(-20px, -80px) scale(0.9); }
-  75% { transform: translate(30px, -120px) scale(1.05); }
+  25% { transform: translate(60px, -40px) scale(1.08); }
+  50% { transform: translate(-30px, -80px) scale(0.92); }
+  75% { transform: translate(40px, -20px) scale(1.04); }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(300%) skewX(-15deg); }
 }
 
 @keyframes fade-in-up {

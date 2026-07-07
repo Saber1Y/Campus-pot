@@ -5,9 +5,20 @@ export default function Hero() {
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
       {/* Ambient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-surface" />
-      <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-accent-dim/10 blur-[120px] animate-ambient" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-accent/5 blur-[100px] animate-ambient" style={{ animationDelay: "2s" }} />
+      <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-accent-dim/10 blur-[120px] animate-ambient" style={{ animationDuration: "6s" }} />
+      <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-accent/5 blur-[100px] animate-ambient" style={{ animationDelay: "3s", animationDuration: "8s" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-accent/3 blur-[150px] rounded-full" />
+
+      {/* Coins, ripples, glows */}
       <HeroParticles />
+
+      {/* Bottom vignette fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+
+      {/* Shimmer sweep */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/3 w-[60px] h-[400px] bg-gradient-to-r from-transparent via-accent/4 to-transparent animate-[shimmer-sweep_8s_ease-in-out_infinite]" />
+      </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center pt-24 pb-32">
         {/* Eyebrow */}
@@ -19,7 +30,10 @@ export default function Hero() {
         {/* Headline */}
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6 animate-fade-in-up stagger-1">
           <span className="text-foreground">One link.</span>{" "}
-          <span className="text-accent-light">One balance.</span>{" "}
+          <span className="text-accent-light relative">
+            One balance.
+            <span className="absolute -inset-4 bg-accent/5 blur-2xl rounded-full opacity-60" />
+          </span>{" "}
           <span className="text-foreground">Any chain.</span>
         </h1>
 
