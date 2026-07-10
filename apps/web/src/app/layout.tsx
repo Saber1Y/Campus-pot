@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Geist_Mono } from "next/font/google";
+import ParticleProviderWrapper from "@/components/ParticleProviderWrapper";
 import "./globals.css";
 
 const sora = Sora({
@@ -29,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sora.variable} ${geistMono.variable}`}>
       <body className="bg-background text-foreground min-h-screen antialiased">
-        {children}
+        <ParticleProviderWrapper>{children}</ParticleProviderWrapper>
       </body>
     </html>
   );

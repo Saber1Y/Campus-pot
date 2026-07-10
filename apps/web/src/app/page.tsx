@@ -14,9 +14,9 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
+        <Architecture />
         <Capabilities />
         <HowItWorks />
-        <Architecture />
         <StatsStrip />
         <ProofSection />
         <TransparencySection />
