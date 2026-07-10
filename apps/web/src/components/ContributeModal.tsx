@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth, useUniversalAccount } from "@/hooks/useCampusPots";
 
 interface ContributeModalProps {
   open: boolean;
@@ -15,18 +16,34 @@ export default function ContributeModal({
   potId,
   potTitle,
 }: ContributeModalProps) {
+  const { address } = useAuth();
+  const { contribute, initializing } = useUniversalAccount();
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   if (!open) return null;
 
   const handleContribute = async () => {
     if (!amount || parseFloat(amount) <= 0) return;
     setSending(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    setSending(false);
-    onClose();
+    setError("");
+
+    try {
+      await contribute({
+        potId,
+        amount,
+        message: message.trim() || "Contribution",
+      });
+      setAmount("");
+      setMessage("");
+      onClose();
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to contribute");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -36,7 +53,6 @@ export default function ContributeModal({
         onClick={onClose}
       />
       <div className="relative bg-surface border border-border rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl shadow-black/40">
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
             <h2 className="text-xl font-semibold text-foreground">
@@ -50,28 +66,15 @@ export default function ContributeModal({
             onClick={onClose}
             className="text-muted hover:text-foreground transition-colors p-1"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-6 space-y-5">
-          {/* Amount */}
           <div>
-            <label className="block text-sm text-muted mb-1.5">
-              Amount (USDC)
-            </label>
+            <label className="block text-sm text-muted mb-1.5">Amount (USDC)</label>
             <input
               type="number"
               min="0"
@@ -83,11 +86,8 @@ export default function ContributeModal({
             />
           </div>
 
-          {/* Source chain */}
           <div>
-            <label className="block text-sm text-muted mb-1.5">
-              Pay from
-            </label>
+            <label className="block text-sm text-muted mb-1.5">Pay from</label>
             <div className="bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-blue-500 shrink-0" />
               <span>Auto (best route via Particle UA)</span>
@@ -97,7 +97,6 @@ export default function ContributeModal({
             </p>
           </div>
 
-          {/* Message */}
           <div>
             <label className="block text-sm text-muted mb-1.5">
               Message <span className="text-muted/40">(optional)</span>
@@ -109,9 +108,18 @@ export default function ContributeModal({
               className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted/40 focus:outline-none focus:border-accent/50 transition-colors"
             />
           </div>
+
+          {error && (
+            <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</p>
+          )}
+
+          {!address && (
+            <p className="text-sm text-accent bg-accent/10 border border-accent/20 rounded-lg px-4 py-2">
+              Connect your wallet first to contribute
+            </p>
+          )}
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 pt-0 border-t border-border">
           <button
             onClick={onClose}
@@ -121,7 +129,7 @@ export default function ContributeModal({
           </button>
           <button
             onClick={handleContribute}
-            disabled={!amount || parseFloat(amount) <= 0 || sending}
+            disabled={!amount || parseFloat(amount) <= 0 || !address || sending || initializing}
             className="text-sm bg-accent hover:bg-accent-light text-black font-medium px-6 py-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {sending && (

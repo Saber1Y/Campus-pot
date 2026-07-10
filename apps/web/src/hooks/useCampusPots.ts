@@ -9,8 +9,12 @@ import {
 import {
   createUAInstance,
   buildContributionTransaction,
+  buildCreatePotTransaction,
+  signAndSendTransaction,
+  toUSDCUnits,
   type ContributionParams,
 } from "@/lib/ua";
+import { USDC_ADDRESSES, SUPPORTED_CHAINS } from "@campuspots/shared";
 
 export function useAuth() {
   const { connect, disconnect, connected, connectionStatus } = useConnect();
@@ -30,6 +34,13 @@ export function useAuth() {
     userInfo,
     signMessage,
   };
+}
+
+export interface CreatePotParams {
+  title: string;
+  description: string;
+  goalAmount: string;
+  deadline: string;
 }
 
 export function useUniversalAccount() {
@@ -55,38 +66,49 @@ export function useUniversalAccount() {
         throw new Error("Universal Account not initialized");
       }
 
-      const tx = await buildContributionTransaction(ua, params);
-
-      const signature = await signMessage(tx.rootHash);
-
-      const authorizations: EIP7702Authorization[] = [];
-      for (const userOpGroup of tx.userOps) {
-        const auth = userOpGroup.eip7702Auth;
-        if (auth && !userOpGroup.eip7702Delegated) {
-          const authSig = await signMessage(
-            JSON.stringify(auth)
-          );
-          authorizations.push({
-            userOpHash: userOpGroup.userOpHash,
-            signature: authSig,
-          });
-        }
-      }
-
-      const result = await ua.sendTransaction(
-        tx,
-        signature,
-        authorizations.length > 0 ? authorizations : undefined
-      );
-
-      return result;
+      const tx = await buildContributionTransaction(ua, {
+        ...params,
+        amount: toUSDCUnits(params.amount),
+      });
+      return signAndSendTransaction(ua, tx, signMessage);
     },
     [ua, signMessage]
+  );
+
+  const createPot = useCallback(
+    async (params: CreatePotParams) => {
+      if (!ua || !signMessage || !address) {
+        throw new Error("Universal Account not initialized");
+      }
+
+      const goalAmountUSDC = toUSDCUnits(params.goalAmount);
+      const token = USDC_ADDRESSES[SUPPORTED_CHAINS.ARBITRUM_ONE];
+      const deadlineUnix = Math.floor(
+        new Date(params.deadline + "T23:59:59Z").getTime() / 1000
+      ).toString();
+      const metadataURI = JSON.stringify({
+        title: params.title,
+        description: params.description,
+      });
+
+      const tx = await buildCreatePotTransaction(
+        ua,
+        address,
+        token,
+        goalAmountUSDC,
+        deadlineUnix,
+        metadataURI
+      );
+
+      return signAndSendTransaction(ua, tx, signMessage);
+    },
+    [ua, signMessage, address]
   );
 
   return {
     ua,
     initializing,
     contribute,
+    createPot,
   };
 }

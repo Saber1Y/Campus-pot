@@ -123,14 +123,46 @@ export async function buildCreatePotTransaction(
   });
 }
 
+export const USDC_DECIMALS = 6;
+
+export function toUSDCUnits(amount: string): string {
+  const [whole, fraction = ""] = amount.split(".");
+  const padded = fraction.padEnd(USDC_DECIMALS, "0").slice(0, USDC_DECIMALS);
+  return whole + padded;
+}
+
+export function fromUSDCUnits(units: string): string {
+  const padded = units.padStart(USDC_DECIMALS + 1, "0");
+  const splitAt = padded.length - USDC_DECIMALS;
+  const whole = padded.slice(0, splitAt);
+  const fraction = padded.slice(splitAt);
+  return `${parseInt(whole, 10)}.${fraction}`;
+}
+
 export type SignMessageFn = (message: string) => Promise<string>;
 
 export async function signAndSendTransaction(
   ua: UniversalAccount,
   transaction: ITransaction,
   signMessage: SignMessageFn,
-  authorizations?: EIP7702Authorization[]
 ) {
   const signature = await signMessage(transaction.rootHash);
-  return ua.sendTransaction(transaction, signature, authorizations);
+
+  const authorizations: EIP7702Authorization[] = [];
+  for (const userOpGroup of transaction.userOps) {
+    const auth = userOpGroup.eip7702Auth;
+    if (auth && !userOpGroup.eip7702Delegated) {
+      const authSig = await signMessage(JSON.stringify(auth));
+      authorizations.push({
+        userOpHash: userOpGroup.userOpHash,
+        signature: authSig,
+      });
+    }
+  }
+
+  return ua.sendTransaction(
+    transaction,
+    signature,
+    authorizations.length > 0 ? authorizations : undefined
+  );
 }

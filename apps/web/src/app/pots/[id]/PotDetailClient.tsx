@@ -2,56 +2,49 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePotDetail } from "@/hooks/usePots";
 import ContributeModal from "@/components/ContributeModal";
 
-interface PotData {
-  id: number;
-  title: string;
-  description: string;
-  goalAmount: string;
-  totalRaised: string;
-  deadline: string;
-  creator: string;
-  contributorCount: number;
-  status: "active" | "withdrawn" | "cancelled";
-  contributors: { address: string; amount: string; message: string | null }[];
-}
-
-export default function PotDetailClient({ pot }: { pot: PotData }) {
+export default function PotDetailClient({ id }: { id: number }) {
+  const { pot, loading } = usePotDetail(id);
   const [showContribute, setShowContribute] = useState(false);
 
-  const progress = Math.min(
-    Number(pot.totalRaised) / Number(pot.goalAmount),
-    1
-  );
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-12 pt-28 flex items-center justify-center">
+        <span className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!pot) {
+    return (
+      <div className="max-w-4xl mx-auto px-6 py-12 pt-28">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-8">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back to pots
+        </Link>
+        <p className="text-muted mt-8">Pot not found.</p>
+      </div>
+    );
+  }
+
+  const progress = Math.min(Number(pot.totalRaised) / Number(pot.goalAmount), 1);
   const isActive = pot.status === "active";
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 pt-28">
-      {/* Back link */}
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-8"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
+      <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-foreground transition-colors mb-8">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
         Back to pots
       </Link>
 
       <div className="grid md:grid-cols-3 gap-8">
-        {/* Left — main info */}
         <div className="md:col-span-2 space-y-6">
-          {/* Title + status */}
           <div>
             <div className="flex items-center gap-3 mb-2">
               {pot.status === "active" && (
@@ -67,39 +60,29 @@ export default function PotDetailClient({ pot }: { pot: PotData }) {
                 </span>
               )}
             </div>
-            <h1 className="text-3xl font-bold text-foreground">
-              {pot.title}
-            </h1>
+            <h1 className="text-3xl font-bold text-foreground">{pot.title}</h1>
           </div>
 
-          {/* Description */}
-          <p className="text-muted leading-relaxed">{pot.description}</p>
+          {pot.description && (
+            <p className="text-muted leading-relaxed">{pot.description}</p>
+          )}
 
-          {/* Progress */}
           <div>
             <div className="flex items-center justify-between text-sm mb-1.5">
               <span className="text-foreground font-medium">
                 ${Number(pot.totalRaised).toLocaleString()}{" "}
-                <span className="text-muted font-normal">
-                  raised of ${Number(pot.goalAmount).toLocaleString()} goal
-                </span>
+                <span className="text-muted font-normal">raised of ${Number(pot.goalAmount).toLocaleString()} goal</span>
               </span>
             </div>
             <div className="h-3 bg-surface-hover rounded-full overflow-hidden">
-              <div
-                className="h-full bg-accent rounded-full transition-all"
-                style={{ width: `${progress * 100}%` }}
-              />
+              <div className="h-full bg-accent rounded-full transition-all" style={{ width: `${progress * 100}%` }} />
             </div>
           </div>
 
-          {/* Quick stats */}
           <div className="flex items-center gap-6 text-sm">
             <div>
               <span className="text-muted">Contributors</span>
-              <p className="text-foreground font-medium">
-                {pot.contributorCount}
-              </p>
+              <p className="text-foreground font-medium">{pot.contributorCount}</p>
             </div>
             <div>
               <span className="text-muted">Deadline</span>
@@ -107,68 +90,44 @@ export default function PotDetailClient({ pot }: { pot: PotData }) {
             </div>
             <div>
               <span className="text-muted">Created by</span>
-              <p className="text-foreground font-mono text-xs">
-                {pot.creator.slice(0, 8)}...{pot.creator.slice(-6)}
-              </p>
+              <p className="text-foreground font-mono text-xs">{pot.creator.slice(0, 8)}...{pot.creator.slice(-6)}</p>
             </div>
           </div>
 
-          {/* CTA */}
-          {isActive && (
+          {isActive ? (
             <button
               onClick={() => setShowContribute(true)}
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent-light text-black font-medium px-6 py-3 rounded-xl transition-colors text-base"
             >
               Contribute from any chain
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
-          )}
-          {!isActive && (
+          ) : (
             <div className="inline-flex items-center gap-2 bg-surface border border-border rounded-xl px-5 py-3 text-sm text-muted">
               This pot is {pot.status}
             </div>
           )}
         </div>
 
-        {/* Right — contributors */}
         <div className="bg-surface border border-border rounded-xl p-5">
-          <h3 className="text-sm font-medium text-foreground mb-4">
-            Contributors
-          </h3>
-          <div className="space-y-3">
-            {pot.contributors.map((c, i) => (
-              <div
-                key={i}
-                className="border-b border-border last:border-0 pb-3 last:pb-0"
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="font-mono text-xs text-foreground">
-                    {c.address}
-                  </span>
-                  <span className="text-sm text-accent-light font-medium">
-                    ${c.amount}
-                  </span>
+          <h3 className="text-sm font-medium text-foreground mb-4">Contributors</h3>
+          {pot.contributors.length > 0 ? (
+            <div className="space-y-3">
+              {pot.contributors.map((c, i) => (
+                <div key={i} className="border-b border-border last:border-0 pb-3 last:pb-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="font-mono text-xs text-foreground">{c.address}</span>
+                    <span className="text-sm text-accent-light font-medium">${c.amount}</span>
+                  </div>
+                  {c.message && (
+                    <p className="text-xs text-muted mt-0.5 italic">&ldquo;{c.message}&rdquo;</p>
+                  )}
                 </div>
-                {c.message && (
-                  <p className="text-xs text-muted mt-0.5 italic">
-                    &ldquo;{c.message}&rdquo;
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-          {pot.contributors.length === 0 && (
+              ))}
+            </div>
+          ) : (
             <p className="text-sm text-muted">No contributions yet</p>
           )}
         </div>
