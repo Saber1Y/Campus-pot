@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${sora.variable} ${geistMono.variable}`}>
-      <body className="bg-background text-foreground min-h-screen antialiased">
+      <body className="bg-background text-foreground min-h-screen antialiased" suppressHydrationWarning>
         <ParticleProviderWrapper>{children}</ParticleProviderWrapper>
       </body>
     </html>
